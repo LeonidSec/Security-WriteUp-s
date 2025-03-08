@@ -10,7 +10,7 @@ https://cyberdefenders.org/blueteam-ctf-challenges/andromeda-bot/
 `memprocfs.exe -device “C:\Users\Administrator\Desktop\Start Here\Artifacts\memory.dmp” -forensic 1`
 
 Флаг -forensic 1 гарантирует, что образ будет смонтирован с включёнными функциями криминалистической экспертизы.
- 
+
 Далее, <ins>свернув</ins> cmd открываем проводник и переходим к примонтированной файловой системе
  
 В директории registry находятся все разделы реестра со значениями. Чтобы узнать серийный номер подключенного USB устройства перейдем в директорию HKLM\SYSTEM\ControlSet001\Enum\USBSTOR, в которой можно найти все идентификаторы устройств. В данной директории содержится только одна папка - Disk&Ven_VendorCo&Prod_ProductCode&Rev_2.00
