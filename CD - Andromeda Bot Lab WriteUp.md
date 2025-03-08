@@ -30,6 +30,7 @@ https://cyberdefenders.org/blueteam-ctf-challenges/andromeda-bot/
 
 Для того, чтобы найти ответ на данный вопрос для начала необходимо распарсить логи. Они находятся в директории \misc\eventlog.
 Для удобства я скопировал их в директорию с таким инструментом, как EvtxECmd. Для того, чтобы распарсить директорию в csv файл воспользуемся флагами -d (указать директорию с логами), --csv (сохранить в csv формате)
+
 `.\EvtxECmd.exe -d 'C:\Users\Administrator\Desktop\Start Here\Tools\ZimmermanTools\net6\EvtxeCmd\eventlog' --csv output`
  ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/6.png)
 После этого в директории output создатся файл формата csv. Для более удобного анализа этого файла воспользуемся инструментом Timeline Explorer. Загрузим в него файл csv.
