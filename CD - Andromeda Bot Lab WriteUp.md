@@ -12,18 +12,18 @@ https://cyberdefenders.org/blueteam-ctf-challenges/andromeda-bot/
 Флаг -forensic 1 гарантирует, что образ будет смонтирован с включёнными функциями криминалистической экспертизы.
 ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/1.png)
 Далее, <ins>свернув</ins> cmd открываем проводник и переходим к примонтированной файловой системе
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/2.png)
 В директории registry находятся все разделы реестра со значениями. Чтобы узнать серийный номер подключенного USB устройства перейдем в директорию HKLM\SYSTEM\ControlSet001\Enum\USBSTOR, в которой можно найти все идентификаторы устройств. В данной директории содержится только одна папка - Disk&Ven_VendorCo&Prod_ProductCode&Rev_2.00
 Перейдем в нее и увидим серийный номер подключенного USB - 7095411056659025437&0.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/3.png)
 >**Ответ: 7095411056659025437&0**
 
 ### **2) Отслеживание активности USB-устройства необходимо для построения временной шкалы инцидента, предоставляя отправную точку для вашего анализа. Когда в последний раз было зафиксировано время, когда USB-накопитель был вставлен в систему?**
 
 Для ответа на данный вопрос пришлось покопаться в том, какая информация вообще собирается. Я нашел директорию py\reg\usb, в которой меня привлекло название файла usb_devices.txt
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/4.png)
 В данном файле хранится информация о серийных номерах USB устройств, а также время их первого и последнего использования. Это как раз то, что нужно. По серийному номеру найдем наше USB-устройство и увидим время последнего использования - 2024-10-04 13:48
-![alt text]()
+![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/5.png)
 >**Ответ: 2024-10-04 13:48**
  
 ### **3) Определение полного пути исполняемого файла дает решающее доказательство для отслеживания источника атаки и понимания того, как было развернуто вредоносное ПО. Каков полный путь исполняемого файла, который был запущен после того, как команды PowerShell отключили защиту Windows Defender?**
@@ -31,9 +31,9 @@ https://cyberdefenders.org/blueteam-ctf-challenges/andromeda-bot/
 Для того, чтобы найти ответ на данный вопрос для начала необходимо распарсить логи. Они находятся в директории \misc\eventlog.
 Для удобства я скопировал их в директорию с таким инструментом, как EvtxECmd. Для того, чтобы распарсить директорию в csv файл воспользуемся флагами -d (указать директорию с логами), --csv (сохранить в csv формате)
 `.\EvtxECmd.exe -d 'C:\Users\Administrator\Desktop\Start Here\Tools\ZimmermanTools\net6\EvtxeCmd\eventlog' --csv output`
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/6.png)
 После этого в директории output создатся файл формата csv. Для более удобного анализа этого файла воспользуемся инструментом Timeline Explorer. Загрузим в него файл csv.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/7.png)
 Введем в поиск .exe для сокращения количества событий. Просмотрев имеющиеся события, обнаружим отключение Windows Defender, о котором говорится в вопросе. Сразу после этого увидим запуск процесса Trusted Installer.exe, у которого родителем является powershell. Это и есть ответ.
 
 >**Ответ: E:\hidden\Trusted Installer.exe**
@@ -41,27 +41,27 @@ https://cyberdefenders.org/blueteam-ctf-challenges/andromeda-bot/
 ### **4) Определение инфраструктуры C&C вредоносного бота является ключом к обнаружению IOC. Согласно отчетам об угрозах, какой URL-адрес использует бот для загрузки своего файла C&C?**
 
 В этом же событии скопируем MD5 хеш файла и посмотрим его анализ на VirusTotal.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/8.png)
 На VirusTotal перейдем во вкладку Relations и увидим Contacted URLs. Среди них есть 2 потенциально подходящих. Но первый вариант подходит по количеству символов.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/9.png)
 >**Ответ: ht<span>tp://</span>anam0rph.su/in.php**
 
 ### **5) Понимание IOC для файлов, сброшенных вредоносным ПО, необходимо для получения информации о различных этапах вредоносного ПО и его потоке выполнения. Каков хэш MD5 сброшенного файла .exe?**
 Продолжая анализировать логи, заметим создание процессом Trusted Installer.exe другого .exe файла, а именно Sahofivizu.exe. Далее сразу же видим событие запуска этого исполняемого файла и его хеш. 
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/10.png)
 >**Ответ: 7FE00CC4EA8429629AC0AC610DB51993**
 
 ### **6) Наличие полных путей к файлам позволяет проводить более полную очистку, гарантируя, что все вредоносные компоненты идентифицированы и удалены из затронутых мест. Каков полный путь к первой DLL, сброшенной образцом вредоносного ПО?**
 
 По тому же принципу, что и в вопросе №5, обнаружим создание процессом Trusted Installer.exe несколько dll файлов. Для ответа на вопрос возьмем самую первую dll.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/11.png)
 >**Ответ: C:\Users\Tomy\AppData\Local\Temp\Gozekeneka.dll**
 
 ### **7) Связь вредоносного ПО с APT-группами имеет решающее значение для раскрытия более широкой стратегии атаки, мотивов и долгосрочных целей. На основе IOC и отчетов об угрозах, какая APT-группа повторно активировала это вредоносное ПО для использования в своих кампаниях?**
 
 Попробуем найти какой-нибудь отчет, упоминающий название данных вредоносных файлов, используя запрос Sahofivizu.exe apt.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/12.png)
 При переходе на первый же ресурс видим название группировки.
- ![alt text]()
+ ![alt text](https://github.com/LeonidSec/Security-WriteUp-s/blob/main/Andromeda%20Bot%20Lab/13.png)
 >**Ответ: Turla**
 
